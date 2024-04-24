@@ -13,14 +13,27 @@ const Index = () => {
     const newBoard = board.slice();
     newBoard[index] = isXNext ? 'X' : 'O';
     setBoard(newBoard);
-    setIsXNext(!isXNext);
-    const winner = calculateWinner(newBoard);
-    if (winner) {
-      setStatus(`Winner: ${winner}`);
+    // After player's move, check for a winner or if the board is full
+    const winnerAfterPlayer = calculateWinner(newBoard);
+    if (winnerAfterPlayer) {
+      setStatus(`Winner: ${winnerAfterPlayer}`);
     } else if (newBoard.every(Boolean)) {
       setStatus('Draw');
     } else {
-      setStatus(`Next player: ${isXNext ? 'O' : 'X'}`);
+      // If no winner and board is not full, AI makes a move
+      const firstEmptyIndex = newBoard.findIndex(cell => cell === null);
+      if (firstEmptyIndex !== -1) {
+        newBoard[firstEmptyIndex] = 'O'; // AI places 'O'
+        setBoard(newBoard);
+        const winnerAfterAI = calculateWinner(newBoard);
+        if (winnerAfterAI) {
+          setStatus(`Winner: ${winnerAfterAI}`);
+        } else if (newBoard.every(Boolean)) {
+          setStatus('Draw');
+        } else {
+          setStatus('Next player: X');
+        }
+      }
     }
   };
 
@@ -41,8 +54,9 @@ const Index = () => {
 
   const handleReset = () => {
     setBoard(Array(9).fill(null));
-    setIsXNext(true);
-    setStatus('Next player: X');
+    // Reset the board and set the initial player to 'X'
+    setIsXNext(true); // Player always starts
+    setStatus('Next player: X'); // Initial status message
   };
 
   return (
